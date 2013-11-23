@@ -1,0 +1,32 @@
+﻿@using Incoding.MvcContrib
+@using JqueryVsIML.Controllers
+<html>
+    <head>
+        <link rel="stylesheet" href="@Url.Content("~/Content/bootstrap/bootstrap.min.css")"/>
+        <script type="text/javascript" src="@Url.Content("~/Scripts/jquery-1.9.1.js")"> </script>
+        <script type="text/javascript" src="@Url.Content("~/Scripts/underscore.js")"> </script>
+        <script type="text/javascript" src="@Url.Content("~/Scripts/mustache.js")"> </script>
+        <script type="text/javascript" src="@Url.Content("~/Scripts/incoding.framework.js")"> </script>        
+    </head>
+    <body>        
+        @{
+            string tmplId = Guid.NewGuid().ToString();
+            using (var template = Html.Incoding().ScriptTemplate<Car>(tmplId))
+            {
+                <ul>
+                    @using (var each = template.ForEach())
+                    {
+                        <li>@each.For(r => r.Brand) on @each.For(r => r.Model) with fuel @each.For(r => r.Fuel)</li>
+                    }
+
+                </ul>
+            }
+        }
+        @(Html.When(JqueryBind.InitIncoding)
+              .Do()
+              .AjaxGet(Url.Action("Fetch", "Data"))
+              .OnSuccess(dsl => dsl.Self().Core().Insert.WithTemplate(Selector.Jquery.Id(tmplId)).Html())
+              .AsHtmlAttributes()
+              .ToTag(HtmlTag.Ul))
+    </body>
+</html>
